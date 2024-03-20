@@ -8,33 +8,9 @@ class FileStorage:
     __file_path = 'file.json'
     __objects = {}
 
-    @property
-    def cities(self):
-        """Retruns Cities in state"""
-
-    def delete(self, obj=None):
-        """loop through __objects, compare each value
-        of key with cls argument wich is object
-        """
-        if obj:
-            id = obj.to_dict()["id"]
-            className = obj.to_dict()["__class__"]
-            keyName = className+"."+id
-            if keyName in FileStorage.__objects:
-                del (FileStorage.__objects[keyName])
-                self.save()
-
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
-        print_dict = {}
-        if cls:
-            className = cls.__name__
-            for k, v in FileStorage.__objects.items():
-                if k.split('.')[0] == className:
-                    print_dict[k] = str(v)
-            return print_dict
-        else:
-            return FileStorage.__objects
+        return FileStorage.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -58,6 +34,7 @@ class FileStorage:
         from models.city import City
         from models.amenity import Amenity
         from models.review import Review
+
         classes = {
                     'BaseModel': BaseModel, 'User': User, 'Place': Place,
                     'State': State, 'City': City, 'Amenity': Amenity,
@@ -72,8 +49,17 @@ class FileStorage:
         except FileNotFoundError:
             pass
 
-    def close(self):
-        """
-        Fuction docs
-        """
-        self.reload()
+    def delete(self, obj=None):
+        """Delete object"""
+        if obj is None:
+            return
+
+        if obj in self.__objects.values():
+            key_to_delete = None
+            for key, value in self.__objects.items():
+                if value == obj:
+                    key_to_delete = key
+                    break
+
+        if key_to_delete is not None:
+            del self.__objects[key_to_delete]
